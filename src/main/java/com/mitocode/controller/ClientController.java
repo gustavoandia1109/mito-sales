@@ -3,6 +3,7 @@ package com.mitocode.controller;
 import com.mitocode.dto.ClientDTO;
 import com.mitocode.model.Client;
 import com.mitocode.service.IClientService;
+import com.mitocode.util.MapperUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,12 +21,15 @@ public class ClientController {
 
     private final IClientService service;
 
-    @Qualifier("defaultMapper")
-    private final ModelMapper modelMapper;
+//    @Qualifier("defaultMapper")
+//    private final ModelMapper modelMapper;
+
+    private final MapperUtil mapperUtil;
 
     @GetMapping
     public ResponseEntity<List<ClientDTO>> findAll() throws Exception {
-        List<ClientDTO> list = service.findAll().stream().map(this::convertToDTO).toList();
+//        List<ClientDTO> list = service.findAll().stream().map(this::convertToDTO).toList();
+        List<ClientDTO> list = mapperUtil.mapList(service.findAll(), ClientDTO.class);
 
         return ResponseEntity.ok(list);
     }
@@ -34,22 +38,22 @@ public class ClientController {
     public ResponseEntity<ClientDTO> findById(@PathVariable("id") Integer id) throws Exception {
         Client obj = service.findById(id);
 
-        return ResponseEntity.ok(convertToDTO(obj));
+        return ResponseEntity.ok(mapperUtil.map(obj, ClientDTO.class));
     }
 
     @PostMapping
     public ResponseEntity<ClientDTO> save(@Valid @RequestBody ClientDTO dto) throws Exception {
-        Client obj = service.save(convertToEntity(dto));
+        Client obj = service.save(mapperUtil.map(dto, Client.class));
 
-        return new ResponseEntity<>(convertToDTO(obj), HttpStatus.CREATED);
+        return new ResponseEntity<>(mapperUtil.map(obj, ClientDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClientDTO> update(@Valid @PathVariable("id") Integer id, @RequestBody ClientDTO dto) throws Exception {
 
-        Client obj = service.update(id, convertToEntity(dto));
+        Client obj = service.update(id, mapperUtil.map(dto, Client.class));
 
-        return new ResponseEntity<>(convertToDTO(obj), HttpStatus.OK);
+        return new ResponseEntity<>(mapperUtil.map(obj, ClientDTO.class), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -59,6 +63,7 @@ public class ClientController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /*
     private ClientDTO convertToDTO(Client obj) {
         return modelMapper.map(obj, ClientDTO.class);
     }
@@ -66,4 +71,6 @@ public class ClientController {
     private Client convertToEntity(ClientDTO dto) {
         return modelMapper.map(dto, Client.class);
     }
+
+    */
 }
